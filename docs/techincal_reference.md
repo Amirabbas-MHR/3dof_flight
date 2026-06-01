@@ -59,7 +59,7 @@ y : right wing
 
 Aerodynamic and propulsive forces are ultimately resolved into this frame before equations of motion are evaluated.
 
-![](./body_frame.png)
+![](./images/body_frame.png)
 ---
 
 # State Vector
@@ -100,7 +100,7 @@ where
 
 # Aerodynamic Model (in stability frame of reference)
 
-![](./stability.png)
+![](./images/stability.png)
 ## Angle of Attack
 
 Angle of attack is defined as

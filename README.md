@@ -42,7 +42,7 @@ The primary goal of this project is educational: it helped me understand flight 
 * Custom plotting utilities
 * Time-history visualization
 
-![scheme Placeholder](docs/scheme.png)
+![scheme Placeholder](docs/images/scheme.png)
 
 ### * for more details, read the [technical_reference](/docs/techincal_reference.md)
 
@@ -111,7 +111,7 @@ where
 | q        | Pitch rate                   |
 
 
-![coordinate_system Placeholder](docs/coordinate_system.png)
+![coordinate_system Placeholder](docs/images/coordinate_system.png)
 
 ---
 
