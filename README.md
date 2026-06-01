@@ -167,8 +167,9 @@ U_trim: [ 0.22362218 -0.08161739]
 
 to validate the trim solution (only Vx is non-zero and is equal to the desired cruising speed)
 
-X_dot trim:  [ 3.00000000e+01  0.00000000e+00  0.00000000e+00 -1.82458848e-11
- -5.24475278e-13  4.60408008e-13]
+X_dot trim:  [ 3.00000000e+01  0.00000000e+00  0.00000000e+00 -1.82458848e-11 -5.24475278e-13  4.60408008e-13]
+
+
 ---
 
 ### T3 – Trimmed Climb
@@ -185,8 +186,9 @@ U_trim: [ 0.700899   -0.06705723]
 
 to validate the trim solution (Vx and Vz are non-zero and equal to the desired cruising speeds)
 
-X_dot trim:  [ 3.00000000e+01 -5.00000000e+00  0.00000000e+00 -1.08191974e-12
- -2.57690166e-14  2.37321274e-14]
+X_dot trim:  [ 3.00000000e+01 -5.00000000e+00  0.00000000e+00 -1.08191974e-12 -2.57690166e-14  2.37321274e-14]
+
+
 ---
 
 ### T4 – Disturbance Rejection
