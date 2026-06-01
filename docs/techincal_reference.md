@@ -100,7 +100,7 @@ where
 
 # Aerodynamic Model (in stability frame of reference)
 
-![](/stability.png)
+![](./stability.png)
 ## Angle of Attack
 
 Angle of attack is defined as
