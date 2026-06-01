@@ -255,8 +255,8 @@ The result is not intended to compete with professional flight simulators. Inste
 
 ---
 
-#### p.s.1: gpt 5.5 helped me generate this markdown using in-code docs.
-#### p.s.2: I used these resources when learning about flight dynamics and control. They may help you too.
+#### p.s.1: gpt 5.5 helped me generate this markdown using hand written inline docs.
+#### p.s.2: I used these resources to learn about flight dynamics and control. They may help you too.
 ##### 1. Advaced flight dynamics course by Dr. Alireza Sharifi, sharif ocw (https://ocw.sharif.ir/course/id/567)
 ##### 2. Linear control course by Dr. Alireza Sharifi, sharif ocw (https://ocw.sharif.ir/course/id/555)
 ##### 3. Stevens, B. L., Lewis, F. L., & Johnson, E. N. (2015). Aircraft control and simulation: Dynamics, controls design, and autonomous systems (3rd ed.). Wiley.
