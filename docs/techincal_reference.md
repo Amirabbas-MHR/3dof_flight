@@ -223,27 +223,6 @@ C_{mq}q
 C_{m\dot\alpha}\dot\alpha
 \right)
 ```
-
----
-
-# Aerodynamic Center and Center of Gravity
-
-The aerodynamic center is assumed fixed at
-
-```math
-0.25c
-```
-
-The aircraft center of gravity is represented by
-
-```math
-cg
-```
-
-normalized by mean aerodynamic chord.
-
-The offset between these two locations generates additional moments from lift and drag forces.
-
 ---
 
 # Gravity Model
@@ -398,15 +377,7 @@ The model is intentionally simple but captures:
 
 # Numerical Integration
 
-State propagation uses the classical fourth-order Runge-Kutta method.
-
-Advantages include
-
-* Good stability
-* Good accuracy
-* Straightforward implementation
-* Suitable for educational flight simulation
-
+State propagation uses the classical fourth-order Runge-Kutta method (RK4)
 A fixed simulation timestep is used throughout the framework.
 
 ---
@@ -473,6 +444,4 @@ It is detailed enough to demonstrate:
 * Disturbance rejection
 * Takeoff dynamics
 
-while remaining compact enough that every line of code and every physical assumption can be understood by a single reader.
-
-The project is therefore best viewed as an engineering laboratory for flight dynamics rather than a full-flight simulation environment.
+The project is therefore best viewed as a begginer's laboratory for flight dynamics rather than a full-flight simulation environment.
