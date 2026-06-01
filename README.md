@@ -109,7 +109,7 @@ where
 | q        | Pitch rate                   |
 
 
-![body-frame Placeholder](docs/images/coordinate_system.png)
+![coordinate_system Placeholder](docs/coordinate_system.png)
 
 ---
 
