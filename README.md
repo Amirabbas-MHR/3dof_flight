@@ -8,7 +8,7 @@ The primary goal of this project is educational: it helped me understand flight 
 
 ---
 
-## Features ###(for more details, read the technical_reference in docs folder)
+## Features
 
 ### Aircraft Dynamics
 
@@ -42,6 +42,9 @@ The primary goal of this project is educational: it helped me understand flight 
 * Custom plotting utilities
 * Time-history visualization
 
+![scheme Placeholder](docs/scheme.png)
+
+### for more details, read the technical_reference in docs folder
 ---
 
 ## Project Structure
