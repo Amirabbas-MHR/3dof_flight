@@ -1,473 +1,141 @@
-# Technical Reference
-
-## Introduction
-
-This document describes the mathematical formulation, physical assumptions, and implementation-level modeling choices of the **3DoF Flight Dynamics Engine**.
-
-The simulator models the longitudinal motion of a rigid fixed-wing aircraft using nonlinear rigid-body dynamics, classical aerodynamic models, and simplified propulsion and ground interaction models.
-
-It is intended for:
-
-* Flight dynamics education
-* Control system development
-* Numerical simulation experiments
+# 3-DOF Fixed-Wing Aircraft Flight Dynamics Model
 
 ---
 
-# Degrees of Freedom
+## 1. Overview
 
-The aircraft is modeled as a **3-DOF longitudinal system**.
+This document describes a nonlinear 3-degree-of-freedom (3-DOF) flight dynamics model implemented for a fixed-wing airborne vehicle (AV). The model is intended for simulation and control design studies under simplified but physically interpretable assumptions.
 
-The state vector is:
+The system evolves in continuous time but is numerically integrated using a fixed-step fourth-order Runge–Kutta (RK4) scheme.
 
-$$
-\mathbf{X} =
+---
+
+## 2. Coordinate Frames and State Representation
+
+### 2.1 Inertial Frame ( \mathcal{I} )
+
+The inertial frame is defined as:
+
+* ( x_I ): horizontal axis (rightward)
+* ( z_I ): vertical axis (upward)
+
+### 2.2 Body Frame ( \mathcal{B} )
+
+The body-fixed frame is defined as:
+
+* ( x_B ): forward (tail → nose)
+* ( z_B ): downward
+* ( y_B ): lateral axis (right wing)
+
+Rotational motion is restricted to pitch about ( y_B ), with angular velocity ( q ).
+
+---
+
+## 3. State, Input, and Output Definition
+
+### 3.1 State Vector
+
+[
+X =
 \begin{bmatrix}
-
-x_I \ 
-
-z_I \ 
-
-\theta \ 
-
-u \ 
-
-w \ 
-
-q 
-
+x_I \
+z_I \
+\theta \
+u \
+w \
+q
 \end{bmatrix}
-$$
+]
 
-where:
+Where:
 
-* $x_I$ : inertial horizontal position
-* $z_I$ : inertial vertical position (altitude)
-* $\theta$ : pitch attitude
-* $u$ : body-frame forward velocity
-* $w$ : body-frame vertical velocity
-* $q$ : pitch rate
+* ( x_I, z_I ): inertial position
+* ( \theta ): pitch angle
+* ( u, w ): body-frame velocities
+* ( q ): pitch rate
 
 ---
 
-# Reference Frames
+### 3.2 Control Input
 
-## Inertial Frame $\mathcal{I}$
-
-$$
-x_I : \text{horizontal axis}
-$$
-$$
-z_I : \text{vertical axis}
-$$
-
----
-
-## Body Frame $\mathcal{B}$
-
-* $x_B$ : forward (nose direction)
-* $z_B$ : downward (z-down convention)
-* $y_B$ : right wing
-
-The body frame is rotated relative to inertial frame $/y$ axis, by pitch angle $\theta$.
-
----
-
-# Control Inputs
-
-$$
-\mathbf{U} =
+[
+U =
 \begin{bmatrix}
 \delta_t \
 \delta_e
 \end{bmatrix}
-$$
-
-where:
-
-* $\delta_t \in [0,1]$ : throttle command
-* $\delta_e$ : elevator deflection
-
----
-
-# Aerodynamic Model
-
-## Angle of Attack
-
-$$
-\alpha = \tan^{-1}\left(\frac{w}{u}\right)
-$$
-
----
-
-## True Airspeed
-
-$$
-V = \sqrt{u^2 + w^2}
-$$
-
----
-
-# Lift Model
-
-## Lift Coefficient
-
-$$
-C_L = C_{L0} + C_{L\alpha}\alpha
-$$
-
-## Lift Force
-
-$$
-L = \frac{1}{2}\rho V^2 S C_L
-$$
-
----
-
-# Drag Model
-
-## Drag Coefficient
-
-$$
-C_D = C_{D0} + k C_L^2
-$$
-
-## Drag Force
-
-$$
-D = \frac{1}{2}\rho V^2 S C_D
-$$
-
----
-
-# Aerodynamic Parameters
-
-## Wing Area $S$
-
-$S$ is the **planform wing area (m²)**, representing the effective surface exposed to airflow and governing lift and drag magnitude.
-
----
-
-## Mean Aerodynamic Chord $c$
-
-$c$ is the **mean aerodynamic chord (MAC)**, a representative chord length of the wing used for:
-
-* Moment scaling
-* Aerodynamic coefficient normalization
-* Lever arm definition for pitching moments
-
----
-
-## Aerodynamic Center
-
-The aerodynamic center is assumed fixed at:
-
-$$
-x_{ac} = 0.25c
-$$
-
-Center of gravity location:
-
-$$
-x_{cg} = cg \cdot c
-$$
-
-Moment arm:
-
-$$
-(x_{cg} - x_{ac}) = (cg - 0.25)c
-$$
-
----
----
-
-# Pitching Moment Model
-
-## Coefficient Model
-
-[
-C_m =
-C_{m0}
-+
-C_{m\alpha}\alpha
-+
-C_{m\delta_e}\delta_e
 ]
 
+Where:
+
+* ( \delta_t \in [0,1] ): throttle
+* ( \delta_e ): elevator deflection
+
 ---
 
-## Dynamic Contributions
+### 3.3 Output
 
 [
-M_q \propto C_{mq} q
+Y = X
 ]
 
-[
-M_{\dot{\alpha}} \propto C_{m\dot{\alpha}} \dot{\alpha}
-]
+The system is fully observable.
 
 ---
 
-## Total Aerodynamic Moment
+## 4. Core Modeling Assumptions
 
-[
-M_s =
-\frac{1}{2}\rho V^2 S c C_m
-+
-\frac{1}{4}\rho V S c^2
-\left(
-C_{mq} q +
-C_{m\dot{\alpha}} \dot{\alpha}
-\right)
-]
+The model is constructed under the following simplifying assumptions:
 
----
-# Force Model (Stability Frame)
+### 4.1 Physical Assumptions
 
-## Lift and Drag Forces
-
-$$
-L_s = \frac{1}{2}\rho V^2 S C_L
-$$
-
-$$
-D_s = \frac{1}{2}\rho V^2 S C_D
-$$
+* 3-DOF rigid body (no roll or yaw dynamics)
+* Constant mass ( m )
+* Constant inertia ( I_{yy} )
+* Flat, non-rotating Earth
+* Constant air density ( \rho )
+* No wind disturbance
+* No Mach effects
+* No actuator dynamics or delays
+* Perfect sensors and state feedback
 
 ---
 
-## Body Axes Forces
+### 4.2 Aerodynamic Assumptions
 
-$$
-F_X = L_s \sin\alpha - D_s \cos\alpha + mg \sin\theta + T_{max}\delta_t
-$$
+* Linear lift curve:
+  [
+  C_L = C_{L0} + C_{L\alpha}\alpha
+  ]
 
-$$
-F_Z = -L_s \cos\alpha - D_s \sin\alpha + mg \cos\theta
-$$
+* Parabolic drag polar:
+  [
+  C_D = C_{D0} + C_{Dk} C_L^2
+  ]
 
----
+* Pitching moment:
+  [
+  C_m = C_{m0} + C_{m\alpha}\alpha + C_{m\delta_e}\delta_e
+  ]
 
-# Equations of Motion
+* Aerodynamic center fixed at:
+  [
+  x_{ac} = 0.25c
+  ]
 
-## Translational Dynamics
-
-$$
-\dot{u} = \frac{F_X}{m} - qw
-$$
-
-$$
-\dot{w} = \frac{F_Z}{m} + qu
-$$
-
----
-
-## Rotational Dynamics
-
-$$
-\dot{q} = \frac{M}{I_{yy}}
-$$
-
-$$
-\dot{\theta} = q
-$$
-i want to cite theese books in my flight dynamics repo in github: brian steven's aircraft control and simulation book stengel's flight dynamics book david allerton's flight simulation book can you write the formal citing format for these books?Thought for 14sHere are the formal citations for the three books in common formats suitable for a GitHub repository (e.g., README, REFERENCES.md, or BibTeX).
-1. Brian Stevens' Book
-Full Title: Aircraft Control and Simulation: Dynamics, Controls Design, and Autonomous Systems (3rd Edition)
-APA Style:
-Stevens, B. L., Lewis, F. L., & Johnson, E. N. (2015). Aircraft control and simulation: Dynamics, controls design, and autonomous systems (3rd ed.). Wiley. https://doi.org/10.1002/9781119174882
-BibTeX:
-bibtexCopy@book{stevens2015aircraft,
-  title     = {Aircraft Control and Simulation: Dynamics, Controls Design, and Autonomous Systems},
-  author    = {Stevens, Brian L. and Lewis, Frank L. and Johnson, Eric N.},
-  year      = {2015},
-  edition   = {3},
-  publisher = {Wiley},
-  doi       = {10.1002/9781119174882}
-}
-2. Robert Stengel's Book
-Full Title: Flight Dynamics (2nd Edition)
-APA Style:
-Stengel, R. F. (2022). Flight dynamics (2nd ed.). Princeton University Press.
-BibTeX:
-bibtexCopy@book{stengel2022flight,
-  title     = {Flight Dynamics},
-  author    = {Stengel, Robert F.},
-  year      = {2022},
-  edition   = {2},
-  publisher = {Princeton University Press}
-}
-3. David Allerton's Book
-Full Title: Principles of Flight Simulation
-APA Style:
-Allerton, D. (2009). Principles of flight simulation. Wiley.
-BibTeX:
-bibtexCopy@book{allerton2009principles,
-  title     = {Principles of Flight Simulation},
-  author    = {Allerton, David},
-  year      = {2009},
-  publisher = {Wiley}
-}
-Recommendation for GitHub
-I suggest using BibTeX entries (easy to import into tools like Zotero, JabRef, or Overleaf) plus a simple markdown table in your README:
-MarkdownCopy## References
-
-| Book | Citation |
-|------|----------|
-| Stevens et al. | Stevens, B. L., Lewis, F. L., & Johnson, E. N. (2015). *Aircraft control and simulation...* (3rd ed.). Wiley. |
-| Stengel | Stengel, R. F. (2022). *Flight dynamics* (2nd ed.). Princeton University Press. |
-| Allerton | Allerton, D. (2009). *Principles of flight simulation*. Wiley. |
-Let me know if you want MLA, Chicago, IEEE, or any other specific style!50 sourceshow to wite the greek theta in mathematics format in markdown?Thought for 19s✅ How to write Greek Theta (θ) in Markdown:
-1. Inline Math (most common)
-MarkdownCopyThe angle is $\theta$.
-Result: The angle is $  θ  $.
-
-2. Display Math (centered, bigger)
-MarkdownCopy$$ \theta $$
-Result:
-$    \theta    $
-
-Other useful variations:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-SymbolMarkdown CodeResultLowercase theta\theta$  θ  $Uppercase theta\Theta$  Θ  $Bold theta\boldsymbol{\theta}$  \boldsymbol{\theta}  $Italic theta\mathit{\theta}$  \mathit{\theta}  $
-Examples in context:
-MarkdownCopy- The pitch angle is $\theta$.
-- In flight dynamics: $\dot{\theta}$ (theta dot)
-- Moment of inertia: $I_{yy} \ddot{\theta}$
-Note: GitHub, GitLab, and many Markdown editors support MathJax / KaTeX. Just wrap the LaTeX code with $...$ or $$...$$.
-Would you like me to also show you how to write common flight dynamics symbols (like phi φ, psi ψ, alpha α, etc.)?the math part of this markdown are not rendered correctly, can you edit that for me?
- 
-MarkdownCopy# Technical Reference
-
-## Introduction
-
-This document describes the mathematical formulation, physical assumptions, and implementation-level modeling choices of the **3DoF Flight Dynamics Engine**.
-
-The simulator models the longitudinal motion of a rigid fixed-wing aircraft using nonlinear equations of motion, aerodynamic force models, and simplified propulsion and ground interaction models.
-
-The system is intended for:
-
-* Flight dynamics education
-* Control system design and testing
-* Numerical simulation experiments
+* Stability-frame aerodynamics, body-frame dynamics
 
 ---
 
-# Degrees of Freedom
+## 5. Kinematic Definitions
 
-The aircraft is modeled as a **3-degree-of-freedom longitudinal rigid body**, with state variables:
-
-[
-\mathbf{X} =
-[x_I,\ z_I,\ \theta,\ u,\ w,\ q]^T
-]
-
-where:
-
-* (x_I): inertial horizontal position
-* (z_I): inertial vertical position (altitude)
-* (\theta): pitch attitude
-* (u): body-frame forward velocity
-* (w): body-frame vertical velocity
-* (q): pitch rate
-
----
-
-# Reference Frames
-
-## Inertial Frame ((\mathcal{F}_I))
-
-[
-x_I: \text{horizontal axis}
-]
-[
-z_I: \text{vertical axis (positive upward)}
-]
-
----
-
-## Body Frame ((\mathcal{F}_B))
-
-The body frame is rigidly attached to the aircraft:
-
-* (x_B): forward (nose direction)
-* (z_B): downward (z-down convention)
-* (y_B): right wing
-
-The body frame rotates relative to inertial frame by pitch angle (\theta).
-
----
-
-# State Vector
-
-[
-\mathbf{X} =
-[x_I,\ z_I,\ \theta,\ u,\ w,\ q]^T
-]
-
-Interpretation:
-
-* First three states are inertial / orientation
-* Last three are body-frame velocities
-
-This mixed-frame representation is intentional and consistent with classical flight dynamics formulations.
-
----
-
-# Control Inputs
-
-[
-\mathbf{U} =
-[\delta_t,\ \delta_e]^T
-]
-
-where:
-
-* (\delta_t \in [0,1]): throttle command
-* (\delta_e): elevator deflection
-
----
-
-# Aerodynamic Model
-
-## Angle of Attack
+### 5.1 Angle of Attack
 
 [
 \alpha = \tan^{-1}\left(\frac{w}{u}\right)
 ]
 
----
-
-## True Airspeed
+### 5.2 Airspeed
 
 [
 V = \sqrt{u^2 + w^2}
@@ -475,149 +143,17 @@ V = \sqrt{u^2 + w^2}
 
 ---
 
-# Lift Model
+## 6. Aerodynamic Force Model
 
-## Lift Coefficient
-
-[
-C_L = C_{L0} + C_{L\alpha}\alpha
-]
-
-## Lift Force
+### 6.1 Dynamic Pressure
 
 [
-L =
-\frac{1}{2}\rho V^2 S C_L
+q_\infty = \frac{1}{2}\rho V^2
 ]
 
 ---
 
-# Drag Model
-
-## Drag Coefficient
-
-[
-C_D = C_{D0} + k C_L^2
-]
-
-## Drag Force
-
-[
-D =
-\frac{1}{2}\rho V^2 S C_D
-]
-
----
-
-# Aerodynamic Parameters: (S) and (c)
-
-## Wing Reference Area (S)
-
-[
-S
-]
-
-represents the **planform wing area** (in m²), i.e., the projected wing surface perpendicular to the airflow direction.
-
-It is the primary scaling factor for:
-
-* Lift magnitude
-* Drag magnitude
-* Aerodynamic force generation
-
-Physically, larger (S) implies:
-
-* More air mass interaction
-* Higher lift at same angle of attack
-* Higher drag at same speed
-
----
-
-## Mean Aerodynamic Chord (c)
-
-[
-c
-]
-
-is the **mean aerodynamic chord (MAC)** of the wing.
-
-It represents an equivalent chord length that preserves aerodynamic characteristics of the entire wing planform.
-
-It is used for:
-
-* Moment scaling
-* Non-dimensional aerodynamic coefficients
-* Lever arm between aerodynamic center and center of gravity
-
----
-
-## Aerodynamic Center Assumption
-
-The aerodynamic center is fixed at:
-
-[
-x_{ac} = 0.25c
-]
-
-The center of gravity is located at:
-
-[
-x_{cg} = cg \cdot c
-]
-
-Thus the moment arm is:
-
-[
-(x_{cg} - x_{ac}) = (cg - 0.25)c
-]
-
----
-
-# Pitching Moment Model
-
-## Coefficient Model
-
-[
-C_m =
-C_{m0}
-+
-C_{m\alpha}\alpha
-+
-C_{m\delta_e}\delta_e
-]
-
----
-
-## Dynamic Contributions
-
-[
-M_q \propto C_{mq} q
-]
-
-[
-M_{\dot{\alpha}} \propto C_{m\dot{\alpha}} \dot{\alpha}
-]
-
----
-
-## Total Aerodynamic Moment
-
-[
-M_s =
-\frac{1}{2}\rho V^2 S c C_m
-+
-\frac{1}{4}\rho V S c^2
-\left(
-C_{mq} q +
-C_{m\dot{\alpha}} \dot{\alpha}
-\right)
-]
-
----
-
-# Force Model (Body Frame)
-
-## Lift and Drag Components
+### 6.2 Lift and Drag (Stability Frame)
 
 [
 L_s = \frac{1}{2}\rho V^2 S C_L
@@ -627,23 +163,45 @@ L_s = \frac{1}{2}\rho V^2 S C_L
 D_s = \frac{1}{2}\rho V^2 S C_D
 ]
 
----
+Where:
 
-## Body Axes Forces
-
-[
-F_X = L_s \sin\alpha - D_s \cos\alpha + mg \sin\theta + T_{max}\delta_t
-]
-
-[
-F_Z = -L_s \cos\alpha - D_s \sin\alpha + mg \cos\theta
-]
+* ( S ): wing reference area
 
 ---
 
-# Equations of Motion
+## 7. Force Transformation and Body Dynamics
 
-## Translational Dynamics
+### 7.1 Body-Frame Forces
+
+[
+F_X = L_s \sin\alpha - D_s \cos\alpha - mg\sin\theta + T_{\max}\delta_t
+]
+
+[
+F_Z = -L_s \cos\alpha - D_s \sin\alpha + mg\cos\theta
+]
+
+---
+
+### 7.2 Landing Gear Model (Optional)
+
+When engaged, a linear spring-damper model is applied:
+
+[
+F_G = -k_G (l_G + z_I) - b_G \dot{z}
+]
+
+This force is projected into the body frame:
+[
+F_X \leftarrow F_X - F_G \sin\theta
+]
+[
+F_Z \leftarrow F_Z + F_G \cos\theta
+]
+
+---
+
+### 7.3 Translational Dynamics (Body Frame)
 
 [
 \dot{u} = \frac{F_X}{m} - qw
@@ -653,9 +211,43 @@ F_Z = -L_s \cos\alpha - D_s \sin\alpha + mg \cos\theta
 \dot{w} = \frac{F_Z}{m} + qu
 ]
 
+The Coriolis coupling terms arise from the rotating body frame.
+
 ---
 
-## Rotational Dynamics
+## 8. Rotational Dynamics
+
+### 8.1 Pitching Moment
+
+Aerodynamic moment about the center of gravity:
+
+[
+M = M_s + (L_s \cos\alpha + D_s \sin\alpha)(c_g - 0.25)c
+]
+
+---
+
+### 8.2 Aerodynamic Moment Component
+
+[
+M_s =
+\frac{1}{2}\rho V^2 S c C_m +
+\frac{1}{4}\rho V S c^2 \left(C_{mq} q + C_{m\dot{\alpha}} \dot{\alpha}\right)
+]
+
+---
+
+### 8.3 Angle of Attack Rate
+
+[
+\dot{\alpha} =
+\frac{u\dot{w} - w\dot{u}}{V^2}
+\quad \text{for } V \neq 0
+]
+
+---
+
+### 8.4 Pitch Dynamics
 
 [
 \dot{q} = \frac{M}{I_{yy}}
@@ -667,135 +259,106 @@ F_Z = -L_s \cos\alpha - D_s \sin\alpha + mg \cos\theta
 
 ---
 
-# Coordinate Transformation
+## 9. Inertial Kinematics
+
+Body velocities are transformed into inertial frame velocities:
 
 [
-R_{BI} =
+\begin{bmatrix}
+\dot{x}_I \
+\dot{z}_I
+\end{bmatrix}
+=============
+
 \begin{bmatrix}
 \cos\theta & \sin\theta \
 -\sin\theta & \cos\theta
 \end{bmatrix}
+\begin{bmatrix}
+u \
+w
+\end{bmatrix}
+]
+
+Thus:
+
+[
+\dot{x}_I = u\cos\theta + w\sin\theta
 ]
 
 [
-v_x = u\cos\theta + w\sin\theta
+\dot{z}_I = -u\sin\theta + w\cos\theta
 ]
+
+---
+
+## 10. Full State-Space Form
+
+The system is a nonlinear time-invariant MIMO system:
 
 [
-v_z = -u\sin\theta + w\cos\theta
+\dot{X} = F(X, U)
+]
+
+with:
+
+[
+X =
+[x_I, z_I, \theta, u, w, q]^T
+\quad,\quad
+U = [\delta_t, \delta_e]^T
 ]
 
 ---
 
-# Ground Interaction Model
+## 11. Numerical Integration
 
-$$
-F_G = -k_G x - b_G \dot{x}
-$$
+The continuous-time dynamics are discretized using a fixed-step RK4 integrator:
 
-where:
-
-* $k_G$ : ground stiffness
-* $b_G$ : ground damping
+[
+X_{k+1} = X_k + \text{RK4}(F, X_k, U_k, \Delta t)
+]
 
 ---
 
-# Numerical Integration
+## 12. Model Characteristics and Limitations
 
-The system is solved using:
+### Strengths
 
-* Fourth-order Runge-Kutta (RK4)
-* Fixed timestep integration
+* Physically interpretable aerodynamic model
+* Includes coupling between translation and rotation
+* Stability-frame aerodynamics
+* Nonlinear lift/drag behavior
+* Includes ground interaction (optional)
 
----
+### Limitations
 
-# Environmental Assumptions
-
-* Constant air density $\rho$
-* Constant gravity $g$
-* No wind
-* No turbulence
-* No atmospheric variation
-
----
-
-# Aircraft Assumptions
-
-* Rigid body
-* Constant mass $m$
-* Constant inertia $I_{yy}$
-* Fixed center of gravity
-* No aeroelasticity
-
-Neglected effects:
-
-* Fuel burn
-* Structural flexibility
-* Control surface hysteresis
+* No roll/yaw dynamics (3-DOF only)
+* No actuator dynamics (instant control response)
+* Constant air density (no altitude effects)
+* No wind or turbulence
+* Linearized stability derivatives (except drag polar nonlinearity)
+* No stall model or post-stall behavior
+* Small-angle approximations avoided, but aerodynamic validity still limited at extreme AoA
 
 ---
 
-# Control System Assumptions
+## 13. Interpretation as a Dynamical System
 
-* Full state observability
-* No sensor noise
-* No actuator dynamics
-* No delays
+This model represents a coupled nonlinear dynamical system:
 
-Controllers act directly on the true state vector $\mathbf{X}$.
+* Translational motion depends on aerodynamic forces and gravity projection
+* Rotational motion is driven by aerodynamic moments and inertial coupling
+* Aerodynamic coefficients introduce nonlinear dependence on ( \alpha, q, \dot{\alpha} )
+* System exhibits strong coupling between:
 
----
-
-# Simulation Scope
-
-This simulator represents a **minimal nonlinear longitudinal aircraft laboratory**, capturing:
-
-* Stability behavior
-* Trim conditions
-* Control response
-* Takeoff and landing dynamics
-* Disturbance rejection
-
-while intentionally excluding high-fidelity aerospace complexity.
+  * ( (u, w) \leftrightarrow \theta )
+  * ( \alpha \leftrightarrow M \leftrightarrow q )
 
 ---
 
-# Recommended Figures (Highly Important)
+If you want, I can next:
 
-## Coordinate System Definition
-
-```
-[INSERT FIGURE: inertial frame vs body frame with θ, u, w, lift, drag, thrust]
-```
-
----
-
-## Free Body Diagram
-
-```
-[INSERT FIGURE: L, D, T, mg, cg/ac moment arm]
-```
-
----
-
-## Control Loop Architecture
-
-```
-[INSERT FIGURE: controller → actuator → aircraft → state feedback loop]
-```
-
----
-
-## Simulation Outputs
-
-```
-[INSERT FIGURE: t2 steady flight]
-[INSERT FIGURE: t4 disturbance response]
-[INSERT FIGURE: t6 takeoff trajectory]
-```
-
----
-
-# Closing Remark
-
-This model preserves direct physical interpretability: every force, moment, and state variable maps explicitly to classical flight dynamics principles, making it a transparent bridge between theoretical aerospace engineering and numerical simulation practice.
+* derive a **linearized state-space model (A, B matrices)** around trim,
+* add a **stability analysis section (eigenvalues, modes)**,
+* or convert this into a **LaTeX-ready paper format (IEEE style)**.
