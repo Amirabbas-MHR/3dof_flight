@@ -214,10 +214,12 @@ This project was developed as an attempt to build a simulation framework from fi
 
 The result is not intended to compete with professional flight simulators. Instead, it aims to be a transparent engineering tool where every force, moment, state, and assumption can be inspected, modified, and understood.
 
-### PS1: gpt 5.5 helped me generate this markdown using in-code docs.
-### PS2: I used these resources when learning about flight dynamics and control. They may help you too.
-#### 1. Advaced flight dynamics course by Dr. Alireza Sharifi, sharif ocw (https://ocw.sharif.ir/course/id/567)
-#### 2. Linear control course by Dr. Alireza Sharifi, sharif ocw (https://ocw.sharif.ir/course/id/555)
-#### 3. Stevens, B. L., Lewis, F. L., & Johnson, E. N. (2015). Aircraft control and simulation: Dynamics, controls design, and autonomous systems (3rd ed.). Wiley.
-#### 4. Stengel, R. F. (2022). Flight dynamics (2nd ed.). Princeton University Press.
-#### 5. Allerton, D. (2009). Principles of flight simulation. Wiley.
+---
+
+#### p.s.1: gpt 5.5 helped me generate this markdown using in-code docs.
+#### p.s.2: I used these resources when learning about flight dynamics and control. They may help you too.
+##### 1. Advaced flight dynamics course by Dr. Alireza Sharifi, sharif ocw (https://ocw.sharif.ir/course/id/567)
+##### 2. Linear control course by Dr. Alireza Sharifi, sharif ocw (https://ocw.sharif.ir/course/id/555)
+##### 3. Stevens, B. L., Lewis, F. L., & Johnson, E. N. (2015). Aircraft control and simulation: Dynamics, controls design, and autonomous systems (3rd ed.). Wiley.
+##### 4. Stengel, R. F. (2022). Flight dynamics (2nd ed.). Princeton University Press.
+##### 5. Allerton, D. (2009). Principles of flight simulation. Wiley.
