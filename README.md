@@ -2,9 +2,9 @@
 
 A nonlinear longitudinal aircraft flight dynamics simulator written in Python.
 
-This project implements a physics-based three-degree-of-freedom (3DoF) aircraft model with aerodynamic force and moment generation, flight control systems, trimming utilities, disturbance injection, ground interaction, and visualization tools.
+This project implements a physics-based three-degree-of-freedom (3DoF) aircraft model with aerodynamic force and moments, flight control systems, trimming utilities, disturbance injection, ground-gear interaction, and visualization tools.
 
-The primary goal of this project is educational: to provide a transparent and extensible flight simulation framework that bridges the gap between textbook flight dynamics and practical numerical simulation.
+The primary goal of this project is educational: it helped me understand flight dynamics and control systems and provides a transparent and extensible flight simulation framework that bridges the gap between textbook flight dynamics and practical numerical simulation.
 
 ---
 
@@ -17,7 +17,6 @@ The primary goal of this project is educational: to provide a transparent and ex
 * Body-frame equations of motion
 * Inertial-frame position propagation
 * Angle-of-attack dependent aerodynamics
-* Thrust modeling
 * Gravity effects
 
 ### Numerical Simulation
@@ -30,7 +29,7 @@ The primary goal of this project is educational: to provide a transparent and ex
 
 * Modular flight control architecture
 * Flight modes
-* PID and PD controllers
+* Implemnted conventional controllers (PD, PID, ...)
 * Actuator saturation support
 
 ### Environment and Disturbances
@@ -108,6 +107,9 @@ where
 | u        | x body velocity              |
 | w        | z body velocity              |
 | q        | Pitch rate                   |
+
+
+![body-frame Placeholder](docs/images/coordinate_system.png)
 
 ---
 
