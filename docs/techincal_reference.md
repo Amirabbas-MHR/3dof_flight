@@ -444,4 +444,4 @@ It is detailed enough to demonstrate:
 * Disturbance rejection
 * Takeoff dynamics
 
-The project is therefore best viewed as a begginer's laboratory for flight dynamics rather than a full-flight simulation environment.
+The project is therefore best viewed as a beginner's laboratory for flight dynamics rather than a full-flight simulation environment.
