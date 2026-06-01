@@ -154,6 +154,8 @@ log_controlled = simulate(
                             disturbance=disturbance_model.compute,
                         )
 
+plot_simulation(log_controlled)
+
 plot_custom(log_no_control,
             variables={'q': None, 'theta': None, 'delta_e': None, 'delta_t': None, 'TAS': None, 'z': None},
             title='no active control')

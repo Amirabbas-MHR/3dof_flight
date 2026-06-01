@@ -201,12 +201,16 @@ uncontrolled
 ![T4 Placeholder](docs/images/t4'.png)
 PD pitch damper
 
+![T4 Placeholder](docs/images/t4''.png)
+control effort
+
+
 
 ---
 
 ### T5 – Ground Interaction
 
-Aircraft standing on runway with spring-damper landing gear model.
+Aircraft standing on runway with spring-damper landing gear model, starting from 10cm above the ground to see the ground-interaction physics.
 
 ![T5 Placeholder](docs/images/t5.png)
 
@@ -214,9 +218,14 @@ Aircraft standing on runway with spring-damper landing gear model.
 
 ### T6 – Takeoff
 
-Ground roll, rotation, and initial climb.
+Ground roll, rotation, and initial climb. Rotation speed : 39.92075936206734 m/s
+
 
 ![T6 Placeholder](docs/images/t6.png)
+![T6 Placeholder](docs/images/t6'.png)
+![T6 Placeholder](docs/images/t6''.png)
+
+
 
 ---
 

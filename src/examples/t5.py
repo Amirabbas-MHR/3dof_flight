@@ -31,7 +31,7 @@ aircraft = AV_Model(m=1200,
                     C_mq=-20,
                     C_m_adot=-3.5,
                     C_m_de=-1.1,
-                    gear_setting = {"l_G": 0.4, "k_G": 58860, "b_G": 10000}) # gear resting lengt, spring coeff and damper coeff.
+                    gear_setting = {"l_G": 0.4, "k_G": 58860, "b_G": 10000}) # gear resting length, spring coeff and damper coeff.
 
 # Dummy controllers, set the controller input values to 0
 c1 = ZeroController(0)
