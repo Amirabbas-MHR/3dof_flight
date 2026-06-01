@@ -8,16 +8,13 @@ The primary goal of this project is educational: it helped me understand flight 
 
 ---
 
-## Features
+## Features ###(for more details, read the technical_reference in docs folder)
 
 ### Aircraft Dynamics
 
 * Nonlinear longitudinal aircraft dynamics
 * Aerodynamic lift, drag, and pitching moment modeling
-* Body-frame equations of motion
-* Inertial-frame position propagation
 * Angle-of-attack dependent aerodynamics
-* Gravity effects
 
 ### Numerical Simulation
 
@@ -25,12 +22,13 @@ The primary goal of this project is educational: it helped me understand flight 
 * Fourth-order Runge-Kutta (RK4) integration
 * State logging and data collection
 
-### Flight Controls
+### Flight Control and guidance
 
 * Modular flight control architecture
 * Flight modes
 * Implemnted conventional controllers (PD, PID, ...)
 * Actuator saturation support
+* Guidance laws
 
 ### Environment and Disturbances
 
