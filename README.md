@@ -66,13 +66,13 @@ The primary goal of this project is educational: it helped me understand flight 
 │       └── utils.py
 
 ├── examples/
-│   ├── t0_free_fall_no_aero.py
-│   ├── t1_free_fall_with_aero.py
-│   ├── t2_trimmed_level_flight.py
-│   ├── t3_trimmed_climb.py
-│   ├── t4_pitch_control.py
-│   ├── t5_runway_standing.py
-│   └── t6_takeoff.py
+│   ├── t0.py
+│   ├── t1.py
+│   ├── t2.py
+│   ├── t3.py
+│   ├── t4.py
+│   ├── t5.py
+│   └── t6.py
 
 ├── docs/
 │   ├── technical_reference.md
@@ -138,7 +138,7 @@ U =
 
 No aerodynamic forces.
 
-![T0 Placeholder](docs/images/t0_placeholder.png)
+![T0 Placeholder](docs/images/t0.png)
 
 ---
 
@@ -146,7 +146,7 @@ No aerodynamic forces.
 
 Lift and drag effects enabled.
 
-![T1 Placeholder](docs/images/t1_placeholder.png)
+![T1 Placeholder](docs/images/t1.png)
 
 ---
 
@@ -154,7 +154,7 @@ Lift and drag effects enabled.
 
 Steady-state flight without active control.
 
-![T2 Placeholder](docs/images/t2_placeholder.png)
+![T2 Placeholder](docs/images/t2.png)
 
 ---
 
@@ -162,7 +162,7 @@ Steady-state flight without active control.
 
 Steady climbing flight condition.
 
-![T3 Placeholder](docs/images/t3_placeholder.png)
+![T3 Placeholder](docs/images/t3.png)
 
 ---
 
@@ -170,7 +170,7 @@ Steady climbing flight condition.
 
 Comparison between uncontrolled aircraft and PD-controlled pitch stabilization.
 
-![T4 Placeholder](docs/images/t4_placeholder.png)
+![T4 Placeholder](docs/images/t4.png)
 
 ---
 
@@ -178,7 +178,7 @@ Comparison between uncontrolled aircraft and PD-controlled pitch stabilization.
 
 Aircraft standing on runway with spring-damper landing gear model.
 
-![T5 Placeholder](docs/images/t5_placeholder.png)
+![T5 Placeholder](docs/images/t5.png)
 
 ---
 
@@ -186,7 +186,7 @@ Aircraft standing on runway with spring-damper landing gear model.
 
 Ground roll, rotation, and initial climb.
 
-![T6 Placeholder](docs/images/t6_placeholder.png)
+![T6 Placeholder](docs/images/t6.png)
 
 ---
 
