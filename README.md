@@ -136,7 +136,7 @@ U =
 
 ### T0 – Ballistic Free Fall
 
-No aerodynamic forces.
+No aerodynamic forces, free falling to test bare-minimum physics and integration stability.
 
 ![T0 Placeholder](docs/images/t0.png)
 
@@ -148,6 +148,8 @@ Lift and drag effects enabled.
 
 ![T1 Placeholder](docs/images/t1.png)
 
+Note that due to native angle-of-attack damping (given by aircraft model aerodynamic coefficients), AoA tends to zero as time goes on.
+
 ---
 
 ### T2 – Trimmed Level Flight
@@ -155,7 +157,18 @@ Lift and drag effects enabled.
 Steady-state flight without active control.
 
 ![T2 Placeholder](docs/images/t2.png)
+![T2 Placeholder](docs/images/t2'.png)
 
+retsulting trim values:
+
+X_trim: [ 0.          0.          0.22490592 29.24445279  6.69043953  0.        ]
+U_trim: [ 0.22362218 -0.08161739]
+
+
+to validate the trim solution (only Vx is non-zero and is equal to the desired cruising speed)
+
+X_dot trim:  [ 3.00000000e+01  0.00000000e+00  0.00000000e+00 -1.82458848e-11
+ -5.24475278e-13  4.60408008e-13]
 ---
 
 ### T3 – Trimmed Climb
@@ -163,7 +176,17 @@ Steady-state flight without active control.
 Steady climbing flight condition.
 
 ![T3 Placeholder](docs/images/t3.png)
+![T3 Placeholder](docs/images/t3'.png)
 
+resulting trim values:
+
+X_trim: [ 0.          0.          0.36921033 29.78277377  6.16330969  0.        ]
+U_trim: [ 0.700899   -0.06705723]
+
+to validate the trim solution (Vx and Vz are non-zero and equal to the desired cruising speeds)
+
+X_dot trim:  [ 3.00000000e+01 -5.00000000e+00  0.00000000e+00 -1.08191974e-12
+ -2.57690166e-14  2.37321274e-14]
 ---
 
 ### T4 – Disturbance Rejection
