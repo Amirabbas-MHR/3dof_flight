@@ -59,7 +59,7 @@ y : right wing
 
 Aerodynamic and propulsive forces are ultimately resolved into this frame before equations of motion are evaluated.
 
-![](/body_frame.png)
+![](./body_frame.png)
 ---
 
 # State Vector
