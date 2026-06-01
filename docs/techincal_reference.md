@@ -1,364 +1,395 @@
-# 3-DOF Fixed-Wing Aircraft Flight Dynamics Model
+```markdown
+# 3DOF Aircraft Flight Dynamics Model  
+## Technical Documentation
 
 ---
 
 ## 1. Overview
 
-This document describes a nonlinear 3-degree-of-freedom (3-DOF) flight dynamics model implemented for a fixed-wing airborne vehicle (AV). The model is intended for simulation and control design studies under simplified but physically interpretable assumptions.
+This document describes a **nonlinear 3-degree-of-freedom (3DOF)** flight dynamics model for a fixed-wing airborne vehicle (AV). The model captures:
 
-The system evolves in continuous time but is numerically integrated using a fixed-step fourth-order Runge–Kutta (RK4) scheme.
+- Longitudinal translational motion in the inertial frame  
+- Pitch rotational dynamics about the lateral axis  
+- Coupled aerodynamics in a simplified but physically interpretable form  
 
----
+The system is formulated as a **nonlinear time-invariant MIMO system**:
 
-## 2. Coordinate Frames and State Representation
+\[
+\dot{\mathbf{X}} = \mathbf{F}(\mathbf{X}, \mathbf{U}), \quad \mathbf{Y} = \mathbf{X}
+\]
 
-### 2.1 Inertial Frame ( \mathcal{I} )
-
-The inertial frame is defined as:
-
-* ( x_I ): horizontal axis (rightward)
-* ( z_I ): vertical axis (upward)
-
-### 2.2 Body Frame ( \mathcal{B} )
-
-The body-fixed frame is defined as:
-
-* ( x_B ): forward (tail → nose)
-* ( z_B ): downward
-* ( y_B ): lateral axis (right wing)
-
-Rotational motion is restricted to pitch about ( y_B ), with angular velocity ( q ).
+where full-state observability is assumed.
 
 ---
 
-## 3. State, Input, and Output Definition
+## 2. Coordinate Frames and Conventions
 
-### 3.1 State Vector
+### 2.1 Body Frame \( \mathcal{B} \)
 
-[
-X =
+- \( x_b \): longitudinal axis (tail → nose)
+- \( z_b \): downward axis
+- \( y_b \): lateral axis (right wing)
+
+State variables in body frame:
+- \( u \): forward velocity
+- \( w \): vertical velocity (positive downward)
+- \( q \): pitch rate
+
+---
+
+### 2.2 Inertial Frame \( \mathcal{I} \)
+
+- \( x_I \): horizontal axis (rightward)
+- \( z_I \): vertical axis (upward)
+
+Position states:
+- \( x_I, z_I \)
+
+---
+
+### 2.3 Frame Transformation
+
+Rotation from body to inertial frame:
+
+\[
 \begin{bmatrix}
-x_I \
-z_I \
-\theta \
-u \
-w \
-q
+v_x \\
+v_z
 \end{bmatrix}
-]
-
-Where:
-
-* ( x_I, z_I ): inertial position
-* ( \theta ): pitch angle
-* ( u, w ): body-frame velocities
-* ( q ): pitch rate
-
----
-
-### 3.2 Control Input
-
-[
-U =
+=
 \begin{bmatrix}
-\delta_t \
-\delta_e
-\end{bmatrix}
-]
-
-Where:
-
-* ( \delta_t \in [0,1] ): throttle
-* ( \delta_e ): elevator deflection
-
----
-
-### 3.3 Output
-
-[
-Y = X
-]
-
-The system is fully observable.
-
----
-
-## 4. Core Modeling Assumptions
-
-The model is constructed under the following simplifying assumptions:
-
-### 4.1 Physical Assumptions
-
-* 3-DOF rigid body (no roll or yaw dynamics)
-* Constant mass ( m )
-* Constant inertia ( I_{yy} )
-* Flat, non-rotating Earth
-* Constant air density ( \rho )
-* No wind disturbance
-* No Mach effects
-* No actuator dynamics or delays
-* Perfect sensors and state feedback
-
----
-
-### 4.2 Aerodynamic Assumptions
-
-* Linear lift curve:
-  [
-  C_L = C_{L0} + C_{L\alpha}\alpha
-  ]
-
-* Parabolic drag polar:
-  [
-  C_D = C_{D0} + C_{Dk} C_L^2
-  ]
-
-* Pitching moment:
-  [
-  C_m = C_{m0} + C_{m\alpha}\alpha + C_{m\delta_e}\delta_e
-  ]
-
-* Aerodynamic center fixed at:
-  [
-  x_{ac} = 0.25c
-  ]
-
-* Stability-frame aerodynamics, body-frame dynamics
-
----
-
-## 5. Kinematic Definitions
-
-### 5.1 Angle of Attack
-
-[
-\alpha = \tan^{-1}\left(\frac{w}{u}\right)
-]
-
-### 5.2 Airspeed
-
-[
-V = \sqrt{u^2 + w^2}
-]
-
----
-
-## 6. Aerodynamic Force Model
-
-### 6.1 Dynamic Pressure
-
-[
-q_\infty = \frac{1}{2}\rho V^2
-]
-
----
-
-### 6.2 Lift and Drag (Stability Frame)
-
-[
-L_s = \frac{1}{2}\rho V^2 S C_L
-]
-
-[
-D_s = \frac{1}{2}\rho V^2 S C_D
-]
-
-Where:
-
-* ( S ): wing reference area
-
----
-
-## 7. Force Transformation and Body Dynamics
-
-### 7.1 Body-Frame Forces
-
-[
-F_X = L_s \sin\alpha - D_s \cos\alpha - mg\sin\theta + T_{\max}\delta_t
-]
-
-[
-F_Z = -L_s \cos\alpha - D_s \sin\alpha + mg\cos\theta
-]
-
----
-
-### 7.2 Landing Gear Model (Optional)
-
-When engaged, a linear spring-damper model is applied:
-
-[
-F_G = -k_G (l_G + z_I) - b_G \dot{z}
-]
-
-This force is projected into the body frame:
-[
-F_X \leftarrow F_X - F_G \sin\theta
-]
-[
-F_Z \leftarrow F_Z + F_G \cos\theta
-]
-
----
-
-### 7.3 Translational Dynamics (Body Frame)
-
-[
-\dot{u} = \frac{F_X}{m} - qw
-]
-
-[
-\dot{w} = \frac{F_Z}{m} + qu
-]
-
-The Coriolis coupling terms arise from the rotating body frame.
-
----
-
-## 8. Rotational Dynamics
-
-### 8.1 Pitching Moment
-
-Aerodynamic moment about the center of gravity:
-
-[
-M = M_s + (L_s \cos\alpha + D_s \sin\alpha)(c_g - 0.25)c
-]
-
----
-
-### 8.2 Aerodynamic Moment Component
-
-[
-M_s =
-\frac{1}{2}\rho V^2 S c C_m +
-\frac{1}{4}\rho V S c^2 \left(C_{mq} q + C_{m\dot{\alpha}} \dot{\alpha}\right)
-]
-
----
-
-### 8.3 Angle of Attack Rate
-
-[
-\dot{\alpha} =
-\frac{u\dot{w} - w\dot{u}}{V^2}
-\quad \text{for } V \neq 0
-]
-
----
-
-### 8.4 Pitch Dynamics
-
-[
-\dot{q} = \frac{M}{I_{yy}}
-]
-
-[
-\dot{\theta} = q
-]
-
----
-
-## 9. Inertial Kinematics
-
-Body velocities are transformed into inertial frame velocities:
-
-[
-\begin{bmatrix}
-\dot{x}_I \
-\dot{z}_I
-\end{bmatrix}
-=============
-
-\begin{bmatrix}
-\cos\theta & \sin\theta \
+\cos\theta & \sin\theta \\
 -\sin\theta & \cos\theta
 \end{bmatrix}
 \begin{bmatrix}
-u \
+u \\
 w
 \end{bmatrix}
-]
-
-Thus:
-
-[
-\dot{x}_I = u\cos\theta + w\sin\theta
-]
-
-[
-\dot{z}_I = -u\sin\theta + w\cos\theta
-]
+\]
 
 ---
 
-## 10. Full State-Space Form
+## 3. State and Input Definition
 
-The system is a nonlinear time-invariant MIMO system:
+### 3.1 State Vector
 
-[
-\dot{X} = F(X, U)
-]
+\[
+\mathbf{X} =
+\begin{bmatrix}
+x_I & z_I & \theta & u & w & q
+\end{bmatrix}^T
+\]
 
-with:
+### 3.2 Control Input
 
-[
-X =
-[x_I, z_I, \theta, u, w, q]^T
-\quad,\quad
-U = [\delta_t, \delta_e]^T
-]
+\[
+\mathbf{U} =
+\begin{bmatrix}
+\delta_t & \delta_e
+\end{bmatrix}^T
+\]
 
----
-
-## 11. Numerical Integration
-
-The continuous-time dynamics are discretized using a fixed-step RK4 integrator:
-
-[
-X_{k+1} = X_k + \text{RK4}(F, X_k, U_k, \Delta t)
-]
+where:
+- \( \delta_t \in [0,1] \): throttle command  
+- \( \delta_e \): elevator deflection  
 
 ---
 
-## 12. Model Characteristics and Limitations
+## 4. Kinematic Quantities
 
-### Strengths
+### 4.1 Angle of Attack
 
-* Physically interpretable aerodynamic model
-* Includes coupling between translation and rotation
-* Stability-frame aerodynamics
-* Nonlinear lift/drag behavior
-* Includes ground interaction (optional)
+\[
+\alpha = \arctan\left(\frac{w}{u}\right)
+\]
 
-### Limitations
+### 4.2 True Airspeed
 
-* No roll/yaw dynamics (3-DOF only)
-* No actuator dynamics (instant control response)
-* Constant air density (no altitude effects)
-* No wind or turbulence
-* Linearized stability derivatives (except drag polar nonlinearity)
-* No stall model or post-stall behavior
-* Small-angle approximations avoided, but aerodynamic validity still limited at extreme AoA
+\[
+V = \sqrt{u^2 + w^2}
+\]
 
 ---
 
-## 13. Interpretation as a Dynamical System
+## 5. Aerodynamic Model
 
-This model represents a coupled nonlinear dynamical system:
+### 5.1 Lift Coefficient
 
-* Translational motion depends on aerodynamic forces and gravity projection
-* Rotational motion is driven by aerodynamic moments and inertial coupling
-* Aerodynamic coefficients introduce nonlinear dependence on ( \alpha, q, \dot{\alpha} )
-* System exhibits strong coupling between:
+\[
+C_L = C_{L0} + C_{L\alpha}\alpha
+\]
 
-  * ( (u, w) \leftrightarrow \theta )
-  * ( \alpha \leftrightarrow M \leftrightarrow q )
+### 5.2 Drag Coefficient (Parabolic Polar)
+
+\[
+C_D = C_{D0} + C_{Dk} C_L^2
+\]
 
 ---
 
-If you want, I can next:
+### 5.3 Aerodynamic Forces
 
-* derive a **linearized state-space model (A, B matrices)** around trim,
-* add a **stability analysis section (eigenvalues, modes)**,
-* or convert this into a **LaTeX-ready paper format (IEEE style)**.
+Dynamic pressure:
+
+\[
+q_\infty = \frac{1}{2} \rho V^2
+\]
+
+Lift:
+
+\[
+L_s = q_\infty S C_L
+\]
+
+Drag:
+
+\[
+D_s = q_\infty S C_D
+\]
+
+---
+
+## 6. Force Model in Body Frame
+
+### 6.1 Longitudinal Force \( F_X \)
+
+\[
+F_X =
+L_s \sin\alpha
+- D_s \cos\alpha
+- mg \sin\theta
++ T_{\max}\delta_t
+\]
+
+### 6.2 Vertical Force \( F_Z \)
+
+\[
+F_Z =
+- L_s \cos\alpha
+- D_s \sin\alpha
++ mg \cos\theta
+\]
+
+---
+
+## 7. Translational Dynamics
+
+Newton’s second law in body axes:
+
+\[
+\dot{u} = \frac{F_X}{m} - qw
+\]
+
+\[
+\dot{w} = \frac{F_Z}{m} + qu
+\]
+
+---
+
+## 8. Inertial Kinematics
+
+\[
+\dot{x}_I = v_x = u\cos\theta + w\sin\theta
+\]
+
+\[
+\dot{z}_I = v_z = -u\sin\theta + w\cos\theta
+\]
+
+---
+
+## 9. Rotational Dynamics
+
+### 9.1 Pitch Rate Dynamics
+
+\[
+\dot{q} = \frac{M}{I_{yy}}
+\]
+
+### 9.2 Pitch Angle
+
+\[
+\dot{\theta} = q
+\]
+
+---
+
+## 10. Aerodynamic Moment Model
+
+### 10.1 Pitching Moment Coefficient
+
+\[
+C_m =
+C_{m0}
++ C_{m\alpha}\alpha
++ C_{m\delta_e}\delta_e
+\]
+
+---
+
+### 10.2 Stability-Axis Moment
+
+\[
+M_s =
+q_\infty S c C_m
++
+\frac{1}{2} \rho V S c^2
+\left(
+C_{mq} q + C_{m\dot{\alpha}} \dot{\alpha}
+\right)
+\]
+
+---
+
+### 10.3 Angle of Attack Rate
+
+\[
+\dot{\alpha}
+=
+\frac{u\dot{w} - w\dot{u}}{V^2}
+\quad (\text{for } V \neq 0)
+\]
+
+---
+
+### 10.4 CG Offset Moment Contribution
+
+Let aerodynamic center be fixed at \(0.25c\):
+
+\[
+M =
+M_s
++ L_s (x_{cg} - 0.25)c \cos\alpha
++ D_s (x_{cg} - 0.25)c \sin\alpha
+\]
+
+---
+
+## 11. Gravity Model
+
+Gravity acts in inertial frame and is resolved into body axes:
+
+- Coupled into \(F_X, F_Z\) via pitch angle projection
+- Assumes constant magnitude:
+
+\[
+g = 9.81 \, \mathrm{m/s^2}
+\]
+
+---
+
+## 12. Thrust Model
+
+Thrust is aligned with body \(x\)-axis:
+
+\[
+T = T_{\max} \delta_t
+\]
+
+Assumptions:
+- Instantaneous response
+- No engine dynamics
+- No thrust vectoring
+
+---
+
+## 13. Landing Gear Model (Optional)
+
+When enabled, a simple spring-damper ground interaction is applied:
+
+### 13.1 Contact Condition
+
+\[
+|z_I| < l_G
+\]
+
+### 13.2 Ground Force
+
+\[
+F_G = -k_G (l_G + z_I) - b_G v_z
+\]
+
+where:
+\[
+v_z = -u\sin\theta + w\cos\theta
+\]
+
+This force is transformed into body axes before being added to \(F_X, F_Z\).
+
+---
+
+## 14. Numerical Integration
+
+The system is integrated using:
+
+- Fixed timestep discretization
+- Classical **4th-order Runge–Kutta (RK4)** method
+
+This ensures stable integration of nonlinear coupled ODEs:
+
+\[
+\dot{\mathbf{X}} = \mathbf{F}(\mathbf{X}, \mathbf{U})
+\]
+
+---
+
+## 15. Model Assumptions Summary
+
+### 15.1 Physical Simplifications
+
+- 3DOF longitudinal-only dynamics
+- Constant mass and inertia
+- Constant air density \( \rho \)
+- No wind field
+- No Mach effects
+- No actuator dynamics
+- No sensor noise or delay
+
+---
+
+### 15.2 Aerodynamic Assumptions
+
+- Linear lift slope
+- Parabolic drag polar
+- Fixed aerodynamic center at \(0.25c\)
+- Small-angle consistent stability-axis decomposition
+
+---
+
+### 15.3 Control Assumptions
+
+- Instantaneous control response
+- Direct mapping of inputs to forces/moments
+
+---
+
+## 16. System Interpretation
+
+This model represents a **reduced-order nonlinear rigid-body aircraft model**, suitable for:
+
+- Control system design (LQR, MPC, nonlinear control)
+- Flight dynamics education
+- Trajectory simulation
+- Preliminary aircraft performance analysis
+
+It explicitly preserves:
+
+- Coupling between translational and rotational dynamics  
+- Angle-of-attack dependent aerodynamics  
+- Nonlinear inertial transformations  
+
+while neglecting higher-order 6DOF effects.
+
+---
+
+## 17. Final Remarks
+
+Despite its simplifications, the model retains key nonlinear flight physics:
+
+- Lift–drag coupling via \(C_L^2\)
+- Pitch–translation coupling through \(q u, q w\)
+- Geometric CG-induced moment shifts
+- Aerodynamic damping via \(C_{mq}\)
+
+It is therefore a **physically consistent minimal aircraft dynamics core** rather than a purely kinematic simulator.
+```
