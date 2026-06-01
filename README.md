@@ -44,7 +44,8 @@ The primary goal of this project is educational: it helped me understand flight 
 
 ![scheme Placeholder](docs/scheme.png)
 
-### for more details, read the technical_reference in docs folder
+### *for more details, read the [technical_reference](/docs/techincal_reference.md)
+
 ---
 
 ## Project Structure
@@ -129,8 +130,8 @@ U =
 | δ_t      | Throttle command    |
 | δ_e      | Elevator deflection |
 
----
 
+---
 ## Example Scenarios
 
 ### T0 – Ballistic Free Fall
@@ -189,30 +190,6 @@ Ground roll, rotation, and initial climb.
 
 ---
 
-## Architecture
-
-```text
-Pilot Commands
-       │
-       ▼
-Flight Control System
-       │
-       ▼
-Aircraft Dynamics
-       │
-       ▼
-State Propagation
-       │
-       ▼
-Simulation Logger
-       │
-       ▼
-Visualization
-```
-
-Disturbances and actuator limits may be injected at multiple stages of the simulation loop.
-
----
 
 ## Future Work
 
