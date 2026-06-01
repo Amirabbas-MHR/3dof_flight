@@ -176,6 +176,7 @@ Moment arm:
 $$
 (x_{cg} - x_{ac}) = (cg - 0.25)c
 $$
+
 ---
 
 # Pitching Moment Model
