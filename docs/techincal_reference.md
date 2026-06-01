@@ -1,393 +1,450 @@
-# 3DOF Aircraft Flight Dynamics Model  
-## Technical Documentation
+# Technical Reference
+
+## Introduction
+
+This document describes the mathematical formulation, assumptions, and physical models implemented within the 3DoF Flight Dynamics Engine.
+
+The simulator models the longitudinal motion of a rigid fixed-wing aircraft and is intended for educational, research, and control-system development purposes.
+
+The philosophy of the project is simplicity without sacrificing physical meaning. Every equation implemented in the simulator can be traced directly to classical flight dynamics and rigid-body mechanics.
 
 ---
 
-## 1. Overview
+# Degrees of Freedom
 
-This document describes a **nonlinear 3-degree-of-freedom (3DOF)** flight dynamics model for a fixed-wing airborne vehicle (AV). The model captures:
+The model contains three dynamic degrees of freedom:
 
-- Longitudinal translational motion in the inertial frame  
-- Pitch rotational dynamics about the lateral axis  
-- Coupled aerodynamics in a simplified but physically interpretable form  
+1. Horizontal translation
+2. Vertical translation
+3. Pitch rotation
 
-The system is formulated as a **nonlinear time-invariant MIMO system**:
+The aircraft is therefore treated as a longitudinal rigid body.
 
-\[
-\dot{\mathbf{X}} = \mathbf{F}(\mathbf{X}, \mathbf{U}), \quad \mathbf{Y} = \mathbf{X}
-\]
+The following motions are neglected:
 
-where full-state observability is assumed.
-
----
-
-## 2. Coordinate Frames and Conventions
-
-### 2.1 Body Frame \( \mathcal{B} \)
-
-- \( x_b \): longitudinal axis (tail → nose)
-- \( z_b \): downward axis
-- \( y_b \): lateral axis (right wing)
-
-State variables in body frame:
-- \( u \): forward velocity
-- \( w \): vertical velocity (positive downward)
-- \( q \): pitch rate
+* Roll
+* Yaw
+* Lateral translation
+* Sideslip effects
+* Asymmetric aerodynamics
 
 ---
 
-### 2.2 Inertial Frame \( \mathcal{I} \)
+# Reference Frames
 
-- \( x_I \): horizontal axis (rightward)
-- \( z_I \): vertical axis (upward)
+Two coordinate systems are used.
 
-Position states:
-- \( x_I, z_I \)
+## Inertial Frame
+
+The inertial frame is defined by
+
+```text
+x_I : horizontal
+z_I : vertical upward
+```
+
+Aircraft position is expressed in this frame.
 
 ---
 
-### 2.3 Frame Transformation
+## Body Frame
 
-Rotation from body to inertial frame:
+The body frame is attached to the aircraft.
 
-\[
-\begin{bmatrix}
-v_x \\
-v_z
-\end{bmatrix}
+```text
+x : nose direction
+z : downward through fuselage
+y : right wing
+```
+
+Aerodynamic and propulsive forces are ultimately resolved into this frame before equations of motion are evaluated.
+
+---
+
+# State Vector
+
+The system state is
+
+```math
+X =
+[x_I,\ z_I,\ \theta,\ u,\ w,\ q]^T
+```
+
+where
+
+* x_I : horizontal position
+* z_I : altitude
+* θ : pitch attitude
+* u : forward velocity
+* w : vertical body velocity
+* q : pitch rate
+
+---
+
+# Control Inputs
+
+The system input vector is
+
+```math
+U =
+[\delta_t,\ \delta_e]^T
+```
+
+where
+
+* δ_t : throttle command
+* δ_e : elevator deflection
+
+---
+
+# Aerodynamic Model
+
+## Angle of Attack
+
+Angle of attack is defined as
+
+```math
+\alpha = \tan^{-1}\left(\frac{w}{u}\right)
+```
+
+---
+
+## True Airspeed
+
+```math
+V = \sqrt{u^2+w^2}
+```
+
+---
+
+# Lift Model
+
+Lift coefficient
+
+```math
+C_L = C_{L0}+C_{L\alpha}\alpha
+```
+
+Lift force
+
+```math
+L =
+\frac{1}{2}\rho V^2 S C_L
+```
+
+---
+
+# Drag Model
+
+The drag model follows a classical parabolic approximation.
+
+```math
+C_D = C_{D0}+kC_L^2
+```
+
+Drag force
+
+```math
+D =
+\frac{1}{2}\rho V^2 S C_D
+```
+
+---
+
+# Pitching Moment Model
+
+Pitching moment coefficient
+
+```math
+C_m
+=
+C_{m0}
++
+C_{m\alpha}\alpha
++
+C_{m\delta_e}\delta_e
+```
+
+The model includes dynamic damping terms.
+
+```math
+M_q
+\propto
+C_{mq}q
+```
+
+and
+
+```math
+M_{\dot\alpha}
+\propto
+C_{m\dot\alpha}\dot\alpha
+```
+
+The resulting aerodynamic pitching moment is
+
+```math
+M_s
+=
+\frac12\rho V^2ScC_m
++
+\frac14\rho VSc^2
+\left(
+C_{mq}q
++
+C_{m\dot\alpha}\dot\alpha
+\right)
+```
+
+---
+
+# Aerodynamic Center and Center of Gravity
+
+The aerodynamic center is assumed fixed at
+
+```math
+0.25c
+```
+
+The aircraft center of gravity is represented by
+
+```math
+cg
+```
+
+normalized by mean aerodynamic chord.
+
+The offset between these two locations generates additional moments from lift and drag forces.
+
+---
+
+# Gravity Model
+
+Gravity is modeled as a constant acceleration
+
+```math
+g = 9.81\ m/s^2
+```
+
+directed downward in the inertial frame.
+
+No variation with altitude is considered.
+
+---
+
+# Propulsion Model
+
+The propulsion model is intentionally simple.
+
+Maximum thrust
+
+```math
+T_{max}
+```
+
+is scaled linearly by throttle command
+
+```math
+0 \le \delta_t \le 1
+```
+
+resulting in
+
+```math
+T = T_{max}\delta_t
+```
+
+The thrust vector is assumed aligned with the body x-axis.
+
+The following effects are neglected:
+
+* Propeller slipstream
+* Thrust vectoring
+* Engine dynamics
+* Spool-up delays
+
+---
+
+# Translational Dynamics
+
+Body-axis force equations are
+
+```math
+m(\dot u + qw)=F_X
+```
+
+```math
+m(\dot w - qu)=F_Z
+```
+
+which are rearranged in implementation form as
+
+```math
+\dot u=\frac{F_X}{m}-qw
+```
+
+```math
+\dot w=\frac{F_Z}{m}+qu
+```
+
+---
+
+# Rotational Dynamics
+
+Pitch dynamics follow
+
+```math
+I_{yy}\dot q=M
+```
+
+thus
+
+```math
+\dot q=\frac{M}{I_{yy}}
+```
+
+Pitch angle propagation
+
+```math
+\dot\theta=q
+```
+
+---
+
+# Coordinate Transformation
+
+Body-frame velocities are transformed into inertial coordinates using
+
+```math
+R_{BI}
 =
 \begin{bmatrix}
 \cos\theta & \sin\theta \\
 -\sin\theta & \cos\theta
 \end{bmatrix}
-\begin{bmatrix}
-u \\
-w
-\end{bmatrix}
-\]
+```
+
+resulting in
+
+```math
+v_x=u\cos\theta+w\sin\theta
+```
+
+```math
+v_z=-u\sin\theta+w\cos\theta
+```
+
+These inertial velocities are integrated to obtain position.
 
 ---
 
-## 3. State and Input Definition
+# Ground Interaction Model
 
-### 3.1 State Vector
+Ground contact is represented by a spring-damper landing gear.
 
-\[
-\mathbf{X} =
-\begin{bmatrix}
-x_I & z_I & \theta & u & w & q
-\end{bmatrix}^T
-\]
+When the gear penetrates the ground plane, a restoring force is generated.
 
-### 3.2 Control Input
-
-\[
-\mathbf{U} =
-\begin{bmatrix}
-\delta_t & \delta_e
-\end{bmatrix}^T
-\]
-
-where:
-- \( \delta_t \in [0,1] \): throttle command  
-- \( \delta_e \): elevator deflection  
-
----
-
-## 4. Kinematic Quantities
-
-### 4.1 Angle of Attack
-
-\[
-\alpha = \arctan\left(\frac{w}{u}\right)
-\]
-
-### 4.2 True Airspeed
-
-\[
-V = \sqrt{u^2 + w^2}
-\]
-
----
-
-## 5. Aerodynamic Model
-
-### 5.1 Lift Coefficient
-
-\[
-C_L = C_{L0} + C_{L\alpha}\alpha
-\]
-
-### 5.2 Drag Coefficient (Parabolic Polar)
-
-\[
-C_D = C_{D0} + C_{Dk} C_L^2
-\]
-
----
-
-### 5.3 Aerodynamic Forces
-
-Dynamic pressure:
-
-\[
-q_\infty = \frac{1}{2} \rho V^2
-\]
-
-Lift:
-
-\[
-L_s = q_\infty S C_L
-\]
-
-Drag:
-
-\[
-D_s = q_\infty S C_D
-\]
-
----
-
-## 6. Force Model in Body Frame
-
-### 6.1 Longitudinal Force \( F_X \)
-
-\[
-F_X =
-L_s \sin\alpha
-- D_s \cos\alpha
-- mg \sin\theta
-+ T_{\max}\delta_t
-\]
-
-### 6.2 Vertical Force \( F_Z \)
-
-\[
-F_Z =
-- L_s \cos\alpha
-- D_s \sin\alpha
-+ mg \cos\theta
-\]
-
----
-
-## 7. Translational Dynamics
-
-Newton’s second law in body axes:
-
-\[
-\dot{u} = \frac{F_X}{m} - qw
-\]
-
-\[
-\dot{w} = \frac{F_Z}{m} + qu
-\]
-
----
-
-## 8. Inertial Kinematics
-
-\[
-\dot{x}_I = v_x = u\cos\theta + w\sin\theta
-\]
-
-\[
-\dot{z}_I = v_z = -u\sin\theta + w\cos\theta
-\]
-
----
-
-## 9. Rotational Dynamics
-
-### 9.1 Pitch Rate Dynamics
-
-\[
-\dot{q} = \frac{M}{I_{yy}}
-\]
-
-### 9.2 Pitch Angle
-
-\[
-\dot{\theta} = q
-\]
-
----
-
-## 10. Aerodynamic Moment Model
-
-### 10.1 Pitching Moment Coefficient
-
-\[
-C_m =
-C_{m0}
-+ C_{m\alpha}\alpha
-+ C_{m\delta_e}\delta_e
-\]
-
----
-
-### 10.2 Stability-Axis Moment
-
-\[
-M_s =
-q_\infty S c C_m
-+
-\frac{1}{2} \rho V S c^2
-\left(
-C_{mq} q + C_{m\dot{\alpha}} \dot{\alpha}
-\right)
-\]
-
----
-
-### 10.3 Angle of Attack Rate
-
-\[
-\dot{\alpha}
+```math
+F_G
 =
-\frac{u\dot{w} - w\dot{u}}{V^2}
-\quad (\text{for } V \neq 0)
-\]
+-k_G x
+-
+b_G \dot x
+```
+
+where
+
+* k_G : gear stiffness
+* b_G : gear damping
+
+This force is transformed into body coordinates and added to the aircraft force balance.
+
+The model is intentionally simple but captures:
+
+* Static support
+* Compression
+* Bounce
+* Landing energy dissipation
 
 ---
 
-### 10.4 CG Offset Moment Contribution
+# Numerical Integration
 
-Let aerodynamic center be fixed at \(0.25c\):
+State propagation uses the classical fourth-order Runge-Kutta method.
 
-\[
-M =
-M_s
-+ L_s (x_{cg} - 0.25)c \cos\alpha
-+ D_s (x_{cg} - 0.25)c \sin\alpha
-\]
+Advantages include
 
----
+* Good stability
+* Good accuracy
+* Straightforward implementation
+* Suitable for educational flight simulation
 
-## 11. Gravity Model
-
-Gravity acts in inertial frame and is resolved into body axes:
-
-- Coupled into \(F_X, F_Z\) via pitch angle projection
-- Assumes constant magnitude:
-
-\[
-g = 9.81 \, \mathrm{m/s^2}
-\]
+A fixed simulation timestep is used throughout the framework.
 
 ---
 
-## 12. Thrust Model
+# Environmental Assumptions
 
-Thrust is aligned with body \(x\)-axis:
+The current implementation assumes
 
-\[
-T = T_{\max} \delta_t
-\]
+* No wind
+* Constant air density
+* Constant gravity
+* No atmospheric layers
+* No turbulence
+* No gust model
 
-Assumptions:
-- Instantaneous response
-- No engine dynamics
-- No thrust vectoring
-
----
-
-## 13. Landing Gear Model (Optional)
-
-When enabled, a simple spring-damper ground interaction is applied:
-
-### 13.1 Contact Condition
-
-\[
-|z_I| < l_G
-\]
-
-### 13.2 Ground Force
-
-\[
-F_G = -k_G (l_G + z_I) - b_G v_z
-\]
-
-where:
-\[
-v_z = -u\sin\theta + w\cos\theta
-\]
-
-This force is transformed into body axes before being added to \(F_X, F_Z\).
+These assumptions are deliberate and help isolate the aircraft dynamics from environmental complexity.
 
 ---
 
-## 14. Numerical Integration
+# Aircraft Assumptions
 
-The system is integrated using:
+The aircraft is assumed to be
 
-- Fixed timestep discretization
-- Classical **4th-order Runge–Kutta (RK4)** method
+* Rigid
+* Symmetric
+* Constant mass
+* Constant inertia
+* Constant center of gravity
 
-This ensures stable integration of nonlinear coupled ODEs:
+The following effects are neglected
 
-\[
-\dot{\mathbf{X}} = \mathbf{F}(\mathbf{X}, \mathbf{U})
-\]
-
----
-
-## 15. Model Assumptions Summary
-
-### 15.1 Physical Simplifications
-
-- 3DOF longitudinal-only dynamics
-- Constant mass and inertia
-- Constant air density \( \rho \)
-- No wind field
-- No Mach effects
-- No actuator dynamics
-- No sensor noise or delay
+* Fuel burn
+* Structural flexibility
+* Aeroelasticity
+* Control surface backlash
+* Actuator dynamics
 
 ---
 
-### 15.2 Aerodynamic Assumptions
+# Control System Assumptions
 
-- Linear lift slope
-- Parabolic drag polar
-- Fixed aerodynamic center at \(0.25c\)
-- Small-angle consistent stability-axis decomposition
+The simulator currently assumes
 
----
+* Perfect state knowledge
+* No sensor noise
+* No sensor delay
+* No actuator delay
 
-### 15.3 Control Assumptions
+Controllers therefore interact directly with the plant state.
 
-- Instantaneous control response
-- Direct mapping of inputs to forces/moments
-
----
-
-## 16. System Interpretation
-
-This model represents a **reduced-order nonlinear rigid-body aircraft model**, suitable for:
-
-- Control system design (LQR, MPC, nonlinear control)
-- Flight dynamics education
-- Trajectory simulation
-- Preliminary aircraft performance analysis
-
-It explicitly preserves:
-
-- Coupling between translational and rotational dynamics  
-- Angle-of-attack dependent aerodynamics  
-- Nonlinear inertial transformations  
-
-while neglecting higher-order 6DOF effects.
+This allows the study of control laws without introducing estimation or hardware effects.
 
 ---
 
-## 17. Final Remarks
+# Intended Scope
 
-Despite its simplifications, the model retains key nonlinear flight physics:
+This simulator occupies a useful middle ground between textbook equations and high-fidelity flight simulation.
 
-- Lift–drag coupling via \(C_L^2\)
-- Pitch–translation coupling through \(q u, q w\)
-- Geometric CG-induced moment shifts
-- Aerodynamic damping via \(C_{mq}\)
+It is detailed enough to demonstrate:
 
-It is therefore a **physically consistent minimal aircraft dynamics core** rather than a purely kinematic simulator.
+* Aircraft stability
+* Trimming
+* Control design
+* Disturbance rejection
+* Takeoff dynamics
+
+while remaining compact enough that every line of code and every physical assumption can be understood by a single reader.
+
+The project is therefore best viewed as an engineering laboratory for flight dynamics rather than a full-flight simulation environment.
