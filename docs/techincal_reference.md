@@ -1,4 +1,3 @@
-```markdown
 # 3DOF Aircraft Flight Dynamics Model  
 ## Technical Documentation
 
@@ -392,4 +391,3 @@ Despite its simplifications, the model retains key nonlinear flight physics:
 - Aerodynamic damping via \(C_{mq}\)
 
 It is therefore a **physically consistent minimal aircraft dynamics core** rather than a purely kinematic simulator.
-```
