@@ -193,9 +193,14 @@ X_dot trim:  [ 3.00000000e+01 -5.00000000e+00  0.00000000e+00 -1.08191974e-12 -2
 
 ### T4 – Disturbance Rejection
 
-Comparison between uncontrolled aircraft and PD-controlled pitch stabilization.
+Comparison between uncontrolled aircraft and PD-controlled pitch stabilization response to an acceleration in negative body-z axis from t=2~5 s
 
 ![T4 Placeholder](docs/images/t4.png)
+uncontrolled
+
+![T4 Placeholder](docs/images/t4'.png)
+PD pitch damper
+
 
 ---
 
