@@ -148,7 +148,34 @@ Drag force
 D =
 \frac{1}{2}\rho V^2 S C_D
 ```
+---
 
+## Aerodynamic Parameters
+Wing Area $S$
+
+$S$ is the planform wing area (m²), representing the effective surface exposed to airflow and governing lift and drag magnitude.
+
+## Mean Aerodynamic Chord $c$
+
+$c$ is the mean aerodynamic chord (MAC), a representative chord length of the wing.
+
+The aerodynamic center is assumed fixed at:
+
+$$
+x_{ac} = 0.25c
+$$
+
+Center of gravity location:
+
+$$
+x_{cg} = cg \cdot c
+$$
+
+Moment arm:
+
+$$
+(x_{cg} - x_{ac}) = (cg - 0.25)c
+$$
 ---
 
 # Pitching Moment Model
